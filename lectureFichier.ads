@@ -8,10 +8,15 @@
 	--
 
 
+
 package lectureFichier is 
 
 
+	--Fonction qui va lire et retourner la 1er line du fichier 
+	function litFormat (InputFile : file_type; format : string) return string;
 
+	--Fonction qui va lire et retourner un point
+	function litPoint return T_Point;
 
 
 

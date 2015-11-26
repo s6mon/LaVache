@@ -9,15 +9,36 @@
 	--
 
 
+--Appel de package
+
+with Ada.Text_IO; use Ada.Text_IO;
+with structureDonnee;
+
+
+--Programme
+
 package body lectureFichier is 
 
 
 
 begin
 
+function litFormat(InputFile : file_type; format : string) return string is
 
-
-
+text : string(1..12);
+long : integer;
+begin
+	if not(end_of_line(InputFile)
+	then		
+		get_line(InputFile, text, long); --Le fichier doit être en In_File
+	else
+		text := "not_OFF_File";
+	end if;
+	
+	return text;
+end litFormat;
+	
+	
 
 
 
