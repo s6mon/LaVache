@@ -1,0 +1,6 @@
+all: main clean
+
+main: lecturefichier.adb main.adb
+	gnatmake main
+clean:
+	rm -f *.ali *.o
