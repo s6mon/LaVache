@@ -3,31 +3,32 @@
 	--Définir un point
 	--Définir un triangle
 
-package body structureDonnee is
+package body structure_donnee is
 
+-------------------------------------------------------------------------
+--------------------Primitives des liste de triangles--------------------
+-------------------------------------------------------------------------
+procedure ListeTri_add (L : in out T_ListOfTri; Tri : T_Triangle) is
 
-begin
-
---Primitives des liste de triangles
-procedure ListeTri_add (L : T_ListOfTri, Tri : T_Triangle) is
-Cell, nCell : T_CelluleTri;
+nCell : T_CelluleTri;
+nb : integer;
 begin
 	nCell.Triangle := Tri;
 	if L = NULL
 	then
-		L := new T_CelluleOfTri'(Cell);
+		nCell.Suivant := NULL;
+		L := new T_CelluleTri'(nCell);
 	else
-		Cell := L.all;
-		nCell.Suivant := Cell.Suivant;
-		Cell.Suivant := nCell;
+		nb := ListeTri_compare(L, Tri);
+		ListeTri_deplace (L, nCell, nb);
 	end if;
-end ListeTri;
+end ListeTri_add;
 
 
-function ListeTri_get (L : T_ListOfTri) return T_Triangle;
 
-Triangle : T_Triangle;
-Cell : T_CelluleTri;
+procedure ListeTri_get (L : in out T_ListOfTri; Tab : in out T_Triangle) is
+
+Cell : aliased T_CelluleTri;
 begin
 
 	if L = NULL
@@ -35,57 +36,58 @@ begin
 		put("structureDonnee.adb : ListeTri_get => Liste vide");
 	else
 		Cell := L.all;		
-		Triangle := Cell.Triangle;
-		L.all := Cell.Suivant;
+		Tab := Cell.Triangle;
+		L := Cell'unchecked_access;
 	end if;
-return Triangle;
 end ListeTri_get;
 
-function ListeTri_compare (L : T_ListOfTri, TriActu :T_Triangle) return integer is
 
-Cell : T_CelluleTri;
-Tri : T_Triangle;
+--Indique le ième triangle predecesseur de celui qu'on veut inserer
+function ListeTri_compare (L : T_ListOfTri; TriW : T_Triangle) return integer is
+
+Cell : T_ListOfTri;
+TriN : T_Triangle;
 i : integer;
+minW, minN : float;
 begin
-	if (L = NULL)
+	minW := trouveMinZ(TriW);
+	Cell := L;
+	minN := trouveMinZ(Cell.Triangle);
+	i := 1;
+	while (minW >= minN and Cell.Suivant /= NULL) loop
+		i := i + 1;
+		Cell := Cell.Suivant;
+		TriN := Cell.Triangle;
+		minN := trouveMinZ(TriN);		
+	end loop;
+
+	if (minW <= minN)
 	then
-		put("structureDonnee.adb : ListeTri_compare => Liste vide");
-	else
-		Cell := L.all;
-		Triangle := Cell.Triangle;
-		i := 0;
-		while (trouveMinZ(TriActu)) >= (trouveMinZ(Tri)) loop
-			i := i + 1;
-			Cell := Cell.Suivant;
-		end loop;
+		i := i - 1;
+	end if;	
 return i;
 end ListeTri_compare;
 
-function ListeTri_deplace (L : T_ListOfTri, nb : integer) return T_ListOfTri is
-
-Cell : T_CelluleTri;
-i : integer;
-Lr : T_ListOfTri;
-begin
-
-	if L = NULL
+procedure ListeTri_deplace (L : in T_ListOfTri; iCell : in T_CelluleTri; nb : integer) is
+pCell : T_ListOfTri;
+i : integer := 1;
+tCell : T_ListOfTri; --Cellule a ajouter
+begin 
+	tCell :=  new T_CelluleTri'(iCell);
+	pCell := L;
+	while (i < nb) loop
+		pCell := pCell.all.suivant;
+		i := i + 1;
+	end loop;
+	
+	if (pCell.Suivant = NULL)
 	then
-		put("structureDonnee.adb : ListeTri_deplace => Liste vide");
+		tCell.Suivant := NULL;
+		pCell.Suivant := tCell;
 	else
-		i := 0;
-		Cell := L.all;
-		While (i /= nb and Cell.Suivant /= NULL) loop;
-			i := i + 1;
-			Cell := Cell.Suivant;
-		end loop;
+		tCell.Suivant := pCell.Suivant;
+		pCell.Suivant := tCell;
 	end if;
-	if (i = nb)
-	then
-		Lr.all := Cell;
-	else
-		put("structureDonnee.adb : ListeTri_deplace => Le ième elmt n'existe pas");
-	end if;
-return Lr;
 end ListeTri_deplace;
 		
 
@@ -120,6 +122,21 @@ return minZ;
 end trouveMinZ;
 
 
+procedure lit_et_aff (L : in T_ListOfTri) is
+
+pCell : T_ListOfTri;
+Tri : T_Triangle;
+z : float;
+begin
+	pCell := L;
+	while (pCell /= NULL) loop
+		Tri := pCell.all.Triangle;
+		z := trouveMinZ(Tri);
+		put("on aff le plus petit z : "&float'Image(z));
+		new_line;
+		pCell := pCell.Suivant;
+	end loop;
+end lit_et_aff;
 
 
 
